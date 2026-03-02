@@ -27,8 +27,9 @@ Before you begin, ensure you have the following installed:
 
 - **Node.js** (v16 or higher) and npm/yarn
 - **Rust** (latest stable version)
-  - Install from: https://rustup.rs/
+  - Install from: <https://rustup.rs/>
 - **Tauri CLI** (optional, but recommended)
+
   ```bash
   npm install -g @tauri-apps/cli
   ```
@@ -51,6 +52,7 @@ Before you begin, ensure you have the following installed:
    ```
 
 3. Install Rust dependencies:
+
    ```bash
    rustup target add wasm32-unknown-unknown
    ```
@@ -77,7 +79,7 @@ The compiled application will be in `src-tauri/target/release/`.
 
 ## Project Structure
 
-```
+```text
 merit-log/
 ├── src/                      # React frontend source
 │   ├── App.tsx              # Main application component
