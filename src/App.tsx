@@ -1,51 +1,60 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import { NavLink, Route, Routes } from "react-router-dom";
+import DashboardPage from "./pages/DashboardPage";
+import JournalPage from "./pages/JournalPage";
+import ObjectifsPage from "./pages/ObjectifsPage";
+import ParametresPage from "./pages/ParametresPage";
+import TachesPage from "./pages/TachesPage";
+import { JSX } from "react";
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+const linkStyle = ({
+  isActive,
+}: {
+  isActive: boolean;
+}): React.CSSProperties => ({
+  padding: "8px 12px",
+  borderRadius: 8,
+  textDecoration: "none",
+  color: isActive ? "white" : "inherit",
+  background: isActive ? "#333" : "transparent",
+});
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
-
+export default function App(): JSX.Element {
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateRows: "auto 1fr",
+        minHeight: "100vh",
+      }}>
+      <header style={{ padding: 16, borderBottom: "1px solid #ddd" }}>
+        <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <NavLink to="/" style={linkStyle} end>
+            Dashboard
+          </NavLink>
+          <NavLink to="/journal" style={linkStyle}>
+            Journal
+          </NavLink>
+          <NavLink to="/taches" style={linkStyle}>
+            Tâches
+          </NavLink>
+          <NavLink to="/objectifs" style={linkStyle}>
+            Objectifs
+          </NavLink>
+          <NavLink to="/parametres" style={linkStyle}>
+            Paramètres
+          </NavLink>
+        </nav>
+      </header>
 
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+      <main style={{ padding: 16 }}>
+        <Routes>
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/journal" element={<JournalPage />} />
+          <Route path="/taches" element={<TachesPage />} />
+          <Route path="/objectifs" element={<ObjectifsPage />} />
+          <Route path="/parametres" element={<ParametresPage />} />
+        </Routes>
+      </main>
+    </div>
   );
 }
-
-export default App;
