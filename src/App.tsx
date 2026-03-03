@@ -1,58 +1,41 @@
+import type { JSX } from "react";
 import { NavLink, Route, Routes } from "react-router-dom";
-import DashboardPage from "./pages/DashboardPage";
-import JournalPage from "./pages/JournalPage";
-import ObjectifsPage from "./pages/ObjectifsPage";
-import ParametresPage from "./pages/ParametresPage";
-import TachesPage from "./pages/TachesPage";
-import { JSX } from "react";
+import { APP_ROUTES } from "./app/routes";
 
 const linkStyle = ({
   isActive,
 }: {
   isActive: boolean;
-}): React.CSSProperties => ({
-  padding: "8px 12px",
-  borderRadius: 8,
-  textDecoration: "none",
-  color: isActive ? "white" : "inherit",
-  background: isActive ? "#333" : "transparent",
-});
+}): string =>
+  [
+    "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+    isActive
+      ? "bg-slate-100 text-slate-900"
+      : "text-slate-300 hover:bg-slate-800 hover:text-slate-50",
+  ].join(" ");
 
 export default function App(): JSX.Element {
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateRows: "auto 1fr",
-        minHeight: "100vh",
-      }}>
-      <header style={{ padding: 16, borderBottom: "1px solid #ddd" }}>
-        <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <NavLink to="/" style={linkStyle} end>
-            Dashboard
-          </NavLink>
-          <NavLink to="/journal" style={linkStyle}>
-            Journal
-          </NavLink>
-          <NavLink to="/taches" style={linkStyle}>
-            Tâches
-          </NavLink>
-          <NavLink to="/objectifs" style={linkStyle}>
-            Objectifs
-          </NavLink>
-          <NavLink to="/parametres" style={linkStyle}>
-            Paramètres
-          </NavLink>
+    <div className="grid min-h-screen grid-rows-[auto_1fr] bg-slate-950 text-slate-100">
+      <header className="border-b border-slate-800/90 bg-slate-900/70 backdrop-blur">
+        <nav className="mx-auto flex max-w-5xl flex-wrap gap-2 px-4 py-4 sm:px-6">
+          {APP_ROUTES.map((route) => (
+            <NavLink
+              key={route.path}
+              to={route.path}
+              className={linkStyle}
+              end={route.end}>
+              {route.label}
+            </NavLink>
+          ))}
         </nav>
       </header>
 
-      <main style={{ padding: 16 }}>
+      <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
         <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/journal" element={<JournalPage />} />
-          <Route path="/taches" element={<TachesPage />} />
-          <Route path="/objectifs" element={<ObjectifsPage />} />
-          <Route path="/parametres" element={<ParametresPage />} />
+          {APP_ROUTES.map((route) => (
+            <Route key={route.path} path={route.path} element={route.element} />
+          ))}
         </Routes>
       </main>
     </div>

@@ -8,9 +8,9 @@ Merit Log is a cross-platform desktop application that combines the power of Rus
 
 ## Tech Stack
 
-- **Frontend**: React 18 + TypeScript + Vite
+- **Frontend**: React 19 + TypeScript + Vite
 - **Backend**: Tauri + Rust
-- **Styling**: CSS3
+- **Styling**: Tailwind CSS 4
 - **Build Tool**: Vite
 
 ## Features
@@ -82,7 +82,11 @@ The compiled application will be in `src-tauri/target/release/`.
 ```text
 merit-log/
 ├── src/                      # React frontend source
-│   ├── App.tsx              # Main application component
+│   ├── app/                 # App-level routing/config
+│   ├── components/          # Reusable UI components
+│   ├── pages/               # Page modules (one folder per page)
+│   ├── App.tsx              # Main layout + route rendering
+│   ├── App.css              # Tailwind import + base layer
 │   ├── main.tsx             # React entry point
 │   └── assets/              # Static assets
 ├── src-tauri/               # Rust backend
