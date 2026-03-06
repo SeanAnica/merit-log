@@ -1,102 +1,139 @@
 # Merit Log
 
-A desktop application for tracking and managing merit-based logs, built with modern web technologies and native performance.
+A desktop application for daily task tracking, worklogs, and goal management, built with Rust + Tauri.
 
-## Overview
+## Goals
 
-Merit Log is a cross-platform desktop application that combines the power of Rust backend performance with a React-based user interface, providing a seamless experience for managing merit logs.
+- Daily tracking: tasks, subtasks, time spent, days consumed vs allocated, comments
+- Dashboards: performance charts and key indicators
+- Goals module: goals by period, statuses, contextual AI advice
+- Cross-platform: Windows / macOS / Linux
 
 ## Tech Stack
 
 - **Frontend**: React 19 + TypeScript + Vite
-- **Backend**: Tauri + Rust
+- **Backend**: Tauri v2 + Rust
 - **Styling**: Tailwind CSS 4
-- **Build Tool**: Vite
+- **Database**: SQLite (`sqlx` or `rusqlite`)
+- **Charts**: ECharts or Chart.js
+- **State management**: Zustand
+- **Validation**: Zod (UI) + Rust domain
 
-## Features
+## Rust Architecture
 
-- 🚀 Fast and responsive desktop application
-- 🔒 Secure local data management
-- 💻 Cross-platform support (Windows, macOS, Linux)
-- ⚡ Native performance with Rust backend
-- 🎨 Modern React UI
+```
+src-tauri/src/
+├── domain/          # Entities + business rules (calculations, validation)
+├── application/     # Use cases (CreateTask, LogWork, GetDashboard...)
+├── infrastructure/  # SQLite, migrations, repositories
+└── commands/        # Tauri API (invoke) exposed to the UI
+```
+
+Flow: `UI → invoke("command", payload) → UseCase → Repository SQLite → DTO → UI`
+
+## Data Model (SQLite)
+
+| Table         | Key fields                                                                     |
+| ------------- | ------------------------------------------------------------------------------ |
+| `task`        | id, title, description, start_date, end_date, allocated_minutes, status        |
+| `subtask`     | id, task_id, title, status                                                     |
+| `worklog`     | id, date, start_time, end_time, duration_minutes, task_id, subtask_id, comment |
+| `goal_period` | id, start_date, end_date, title                                                |
+| `goal`        | id, goal_period_id, title, criteria, status, notes                             |
+| `ai_advice`   | id, created_at, scope, scope_id, prompt, response                              |
+
+## Features by Version
+
+### MVP
+
+- CRUD Tasks (label, dates, allocation, tags)
+- CRUD Subtasks linked to a task
+- Daily journal / worklog (entry per task, auto-calculated duration)
+- Calculations: consumed vs allocated, actual vs estimated time
+- Dashboard v1: key indicators + 2-3 charts
+
+### V1
+
+- Goals by period + statuses + notes
+- AI: contextual advice (goals + history)
+- CSV export + import
+- Search, filters, period views
+- Installable packaging (Win / macOS / Linux)
+
+### V2 (backlog)
+
+- Project/client model
+- PDF "HR review" report
+- Timer mode with pause/resume
+- DB encryption (SQLCipher)
+- Multi-profile
+
+## Performance Indicators (KPIs)
+
+- **Workload**: utilization rate, consumption vs allocation, drift, breakdown by task/tag
+- **Predictability**: estimation accuracy, ahead/late distribution
+- **Focus**: context switches per day, average session duration, deep work time
+- **Goals**: achievement rate per period, progress
+
+## Development Roadmap
+
+| Step | Content                                                       | Status      |
+| ---- | ------------------------------------------------------------- | ----------- |
+| A    | Setup, UI routing, SQLite, first Rust command `create_task`   | In progress |
+| B    | Full CRUD Tasks + Subtasks, validations                       | To do       |
+| C    | Journal / Worklog, week/month view, auto duration calculation | To do       |
+| D    | Rust KpiService, aggregations, unit tests                     | To do       |
+| E    | Dashboard v1: KPI tiles + charts + filters                    | To do       |
+| F    | CRUD Goals by period, period review                           | To do       |
+| G    | AI module: advice, prompting, local storage                   | To do       |
+| H    | CSV export + HTML/PDF report                                  | To do       |
+| I    | Tests, CI GitHub Actions, installable packaging               | To do       |
+
+Step A deliverable: the app opens, creates a task, persists and reads back data.
 
 ## Prerequisites
 
-Before you begin, ensure you have the following installed:
-
-- **Node.js** (v16 or higher) and npm/yarn
-- **Rust** (latest stable version)
-  - Install from: <https://rustup.rs/>
-- **Tauri CLI** (optional, but recommended)
-
-  ```bash
-  npm install -g @tauri-apps/cli
-  ```
+- **Node.js** v18+
+- **Rust** (stable) — [rustup.rs](https://rustup.rs/)
 
 ## Getting Started
 
-### Installation
-
-1. Clone the repository:
-
-   ```bash
-   git clone <repository-url>
-   cd merit-log
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-3. Install Rust dependencies:
-
-   ```bash
-   rustup target add wasm32-unknown-unknown
-   ```
-
-### Development
-
-Start the development server:
-
 ```bash
+git clone <repository-url>
+cd merit-log
+npm install
 npm run tauri dev
 ```
 
-This will open the Tauri development window with hot-reload enabled.
+## Available Scripts
 
-### Building
-
-Build the production application:
-
-```bash
-npm run tauri build
-```
-
-The compiled application will be in `src-tauri/target/release/`.
+| Command               | Description                         |
+| --------------------- | ----------------------------------- |
+| `npm run dev`         | Frontend-only development server    |
+| `npm run tauri dev`   | Full development with Tauri backend |
+| `npm run build`       | Build frontend for production       |
+| `npm run tauri build` | Build complete desktop application  |
+| `npm run preview`     | Preview production build            |
 
 ## Project Structure
 
-```text
+```
 merit-log/
-├── src/                      # React frontend source
-│   ├── app/                 # App-level routing/config
-│   ├── components/          # Reusable UI components
-│   ├── pages/               # Page modules (one folder per page)
-│   ├── App.tsx              # Main layout + route rendering
-│   ├── App.css              # Tailwind import + base layer
-│   ├── main.tsx             # React entry point
-│   └── assets/              # Static assets
-├── src-tauri/               # Rust backend
-│   ├── src/                 # Rust source files
-│   ├── Cargo.toml          # Rust dependencies
-│   ├── tauri.conf.json     # Tauri configuration
-│   └── capabilities/        # Permission configurations
-├── package.json             # Frontend dependencies
-├── tsconfig.json           # TypeScript configuration
-└── vite.config.ts          # Vite configuration
+├── src/                      # React frontend
+│   ├── app/                  # Routing / config
+│   ├── components/           # Reusable components
+│   ├── pages/                # Pages (Dashboard, Journal, Tasks, Goals, Settings)
+│   ├── App.tsx               # Main layout + routes
+│   ├── main.tsx              # React entry point
+│   └── assets/               # Static assets
+├── src-tauri/                # Rust backend
+│   ├── src/                  # Rust sources
+│   ├── Cargo.toml            # Rust dependencies
+│   ├── tauri.conf.json       # Tauri configuration
+│   └── capabilities/         # Permissions
+├── package.json
+├── tsconfig.json
+└── vite.config.ts
 ```
 
 ## Recommended IDE Setup
@@ -105,18 +142,6 @@ merit-log/
 - [Tauri Extension](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode)
 - [Rust Analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
 
-## Available Scripts
-
-- `npm run dev` - Start development server (frontend only)
-- `npm run tauri dev` - Start development with Tauri backend
-- `npm run build` - Build frontend for production
-- `npm run tauri build` - Build complete desktop application
-- `npm run preview` - Preview production build
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT
