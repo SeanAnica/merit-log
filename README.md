@@ -13,7 +13,7 @@ A desktop application for daily task tracking, worklogs, and goal management, bu
 
 - **Frontend**: React 19 + TypeScript + Vite
 - **Backend**: Tauri v2 + Rust
-- **Styling**: Tailwind CSS 4
+- **Styling**: Tailwind CSS 4 + shadcn/ui (Radix)
 - **Database**: SQLite via `rusqlite` (bundled — no system SQLite required)
 - **Charts**: ECharts or Chart.js
 - **State management**: Zustand
@@ -77,17 +77,17 @@ Flow: `UI → invoke("command", payload) → UseCase → Repository SQLite → D
 
 ## Development Roadmap
 
-| Step | Content                                                       | Status      |
-| ---- | ------------------------------------------------------------- | ----------- |
-| A    | Setup, UI routing, SQLite, first Rust command `create_task`   | In progress |
-| B    | Full CRUD Tasks + Subtasks, validations                       | To do       |
-| C    | Journal / Worklog, week/month view, auto duration calculation | To do       |
-| D    | Rust KpiService, aggregations, unit tests                     | To do       |
-| E    | Dashboard v1: KPI tiles + charts + filters                    | To do       |
-| F    | CRUD Goals by period, period review                           | To do       |
-| G    | AI module: advice, prompting, local storage                   | To do       |
-| H    | CSV export + HTML/PDF report                                  | To do       |
-| I    | Tests, CI GitHub Actions, installable packaging               | To do       |
+| Step | Content                                                       | Status |
+| ---- | ------------------------------------------------------------- | ------ |
+| A    | Setup, UI routing, SQLite, first Rust command `create_task`   | Done   |
+| B    | Full CRUD Tasks + Subtasks, validations                       | To do  |
+| C    | Journal / Worklog, week/month view, auto duration calculation | To do  |
+| D    | Rust KpiService, aggregations, unit tests                     | To do  |
+| E    | Dashboard v1: KPI tiles + charts + filters                    | To do  |
+| F    | CRUD Goals by period, period review                           | To do  |
+| G    | AI module: advice, prompting, local storage                   | To do  |
+| H    | CSV export + HTML/PDF report                                  | To do  |
+| I    | Tests, CI GitHub Actions, installable packaging               | To do  |
 
 Step A deliverable: the app opens, creates a task, persists and reads back data.
 
@@ -130,16 +130,24 @@ npm run tauri dev
 merit-log/
 ├── src/                      # React frontend
 │   ├── app/                  # Routing / config
-│   ├── components/           # Reusable components
+│   ├── components/
+│   │   ├── ui/               # shadcn/ui components (auto-generated)
+│   │   └── layout/           # Navbar, Layout
+│   ├── lib/                  # Shared utilities (cn, etc.)
 │   ├── pages/                # Pages (Dashboard, Journal, Tasks, Goals, Settings)
-│   ├── App.tsx               # Main layout + routes
-│   ├── main.tsx              # React entry point
-│   └── assets/               # Static assets
+│   ├── App.tsx               # Entry point — renders <Layout />
+│   ├── App.css               # Tailwind import + shadcn CSS variables
+│   └── main.tsx              # React entry point
 ├── src-tauri/                # Rust backend
-│   ├── src/                  # Rust sources
+│   ├── migrations/           # SQL migration files (001_create_task.sql, ...)
+│   ├── src/
+│   │   ├── domain/           # Entities (Task, ...)
+│   │   ├── infrastructure/   # SQLite + migrations (db.rs)
+│   │   ├── commands/         # Tauri invoke handlers
+│   │   └── lib.rs            # App setup + state management
 │   ├── Cargo.toml            # Rust dependencies
-│   ├── tauri.conf.json       # Tauri configuration
-│   └── capabilities/         # Permissions
+│   └── tauri.conf.json       # Tauri configuration
+├── components.json           # shadcn/ui configuration
 ├── package.json
 ├── tsconfig.json
 └── vite.config.ts
