@@ -14,14 +14,14 @@ A desktop application for daily task tracking, worklogs, and goal management, bu
 - **Frontend**: React 19 + TypeScript + Vite
 - **Backend**: Tauri v2 + Rust
 - **Styling**: Tailwind CSS 4
-- **Database**: SQLite (`sqlx` or `rusqlite`)
+- **Database**: SQLite via `rusqlite` (bundled — no system SQLite required)
 - **Charts**: ECharts or Chart.js
 - **State management**: Zustand
 - **Validation**: Zod (UI) + Rust domain
 
 ## Rust Architecture
 
-```
+```text
 src-tauri/src/
 ├── domain/          # Entities + business rules (calculations, validation)
 ├── application/     # Use cases (CreateTask, LogWork, GetDashboard...)
@@ -95,6 +95,15 @@ Step A deliverable: the app opens, creates a task, persists and reads back data.
 
 - **Node.js** v18+
 - **Rust** (stable) — [rustup.rs](https://rustup.rs/)
+- **Tauri system dependencies** (vary by OS):
+  - **Windows**: Microsoft C++ Build Tools + WebView2 (pre-installed on Windows 10/11)
+  - **macOS**: Xcode Command Line Tools (`xcode-select --install`)
+  - **Linux**: `webkit2gtk`, `build-essential`, and others
+
+Full details: [Tauri v2 Prerequisites](https://v2.tauri.app/start/prerequisites/)
+
+> SQLite is compiled into the binary (`rusqlite` bundled feature) — no manual database setup required.
+> The database file is created automatically on first launch in the OS app data directory.
 
 ## Getting Started
 
@@ -117,7 +126,7 @@ npm run tauri dev
 
 ## Project Structure
 
-```
+```text
 merit-log/
 ├── src/                      # React frontend
 │   ├── app/                  # Routing / config
