@@ -15,21 +15,36 @@ A desktop application for daily task tracking, worklogs, and goal management, bu
 - **Backend**: Tauri v2 + Rust
 - **Styling**: Tailwind CSS 4 + shadcn/ui (Radix)
 - **Database**: SQLite via `rusqlite` (bundled — no system SQLite required)
-- **Charts**: ECharts or Chart.js
-- **State management**: Zustand
-- **Validation**: Zod (UI) + Rust domain
+- **Charts**: ECharts or Chart.js *(planned)*
+- **State management**: Zustand *(planned)*
+- **Validation**: Zod (UI) + Rust domain *(planned)*
 
-## Rust Architecture
+## Architecture
+
+### Rust (backend)
 
 ```text
 src-tauri/src/
-├── domain/          # Entities + business rules (calculations, validation)
-├── application/     # Use cases (CreateTask, LogWork, GetDashboard...)
-├── infrastructure/  # SQLite, migrations, repositories
-└── commands/        # Tauri API (invoke) exposed to the UI
+├── domain/          # Entities + business rules (Task, Subtask, ...)
+├── application/     # Use cases — planned (CreateTask, LogWork, GetDashboard...)
+├── infrastructure/  # SQLite connection + migrations
+└── commands/        # Tauri invoke handlers (thin API surface)
 ```
 
-Flow: `UI → invoke("command", payload) → UseCase → Repository SQLite → DTO → UI`
+Flow: `UI → invoke("command", payload) → Command → Repository SQLite → DTO → UI`
+
+> `application/` is intentionally absent at MVP stage. Business logic currently lives in `commands/` and will be extracted into use cases as complexity grows.
+
+### Frontend
+
+```text
+src/
+├── types/           # TypeScript interfaces mirroring Rust structs
+├── services/        # Tauri invoke wrappers (one file per domain)
+├── components/      # UI components (shadcn/ui + layout)
+├── pages/           # One folder per route
+└── app/             # Routing config
+```
 
 ## Data Model (SQLite)
 
@@ -80,7 +95,7 @@ Flow: `UI → invoke("command", payload) → UseCase → Repository SQLite → D
 | Step | Content                                                       | Status |
 | ---- | ------------------------------------------------------------- | ------ |
 | A    | Setup, UI routing, SQLite, first Rust command `create_task`   | Done   |
-| B    | Full CRUD Tasks + Subtasks, validations                       | To do  |
+| B    | Full CRUD Tasks + Subtasks, validations                       | In progress |
 | C    | Journal / Worklog, week/month view, auto duration calculation | To do  |
 | D    | Rust KpiService, aggregations, unit tests                     | To do  |
 | E    | Dashboard v1: KPI tiles + charts + filters                    | To do  |
@@ -128,26 +143,28 @@ npm run tauri dev
 
 ```text
 merit-log/
-├── src/                      # React frontend
-│   ├── app/                  # Routing / config
+├── src/                        # React frontend
+│   ├── app/                    # Routing config (routes.tsx)
+│   ├── types/                  # TypeScript interfaces (Task, Subtask, ...)
+│   ├── services/               # Tauri invoke wrappers (taskService, subtaskService)
 │   ├── components/
-│   │   ├── ui/               # shadcn/ui components (auto-generated)
-│   │   └── layout/           # Navbar, Layout
-│   ├── lib/                  # Shared utilities (cn, etc.)
-│   ├── pages/                # Pages (Dashboard, Journal, Tasks, Goals, Settings)
-│   ├── App.tsx               # Entry point — renders <Layout />
-│   ├── App.css               # Tailwind import + shadcn CSS variables
-│   └── main.tsx              # React entry point
-├── src-tauri/                # Rust backend
-│   ├── migrations/           # SQL migration files (001_create_task.sql, ...)
+│   │   ├── ui/                 # shadcn/ui components (auto-generated, do not edit)
+│   │   └── layout/             # Navbar, Layout
+│   ├── lib/                    # Shared utilities (cn, etc.)
+│   ├── pages/                  # Pages (Dashboard, Journal, Tasks, Goals, Settings)
+│   ├── App.tsx                 # Entry point — renders <Layout />
+│   ├── App.css                 # Tailwind import + shadcn CSS variables
+│   └── main.tsx                # React entry point
+├── src-tauri/                  # Rust backend
+│   ├── migrations/             # Versioned SQL files (001_create_task.sql, ...)
 │   ├── src/
-│   │   ├── domain/           # Entities (Task, ...)
-│   │   ├── infrastructure/   # SQLite + migrations (db.rs)
-│   │   ├── commands/         # Tauri invoke handlers
-│   │   └── lib.rs            # App setup + state management
-│   ├── Cargo.toml            # Rust dependencies
-│   └── tauri.conf.json       # Tauri configuration
-├── components.json           # shadcn/ui configuration
+│   │   ├── domain/             # Entities: Task, Subtask
+│   │   ├── infrastructure/     # SQLite connection + migration runner (db.rs)
+│   │   ├── commands/           # Tauri invoke handlers: task.rs, subtask.rs
+│   │   └── lib.rs              # App bootstrap + managed state
+│   ├── Cargo.toml              # Rust dependencies
+│   └── tauri.conf.json         # Tauri configuration
+├── components.json             # shadcn/ui configuration
 ├── package.json
 ├── tsconfig.json
 └── vite.config.ts
